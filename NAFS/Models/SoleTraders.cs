@@ -32,6 +32,7 @@ namespace NAFS.Models
 
         //[RegularExpression(@"^(\d{10})$", ErrorMessage = "Invalid UTR Format")]
         public string? UTR { get; set; }
+        public DateTime? SysDate { get; set; } = DateTime.Now;
 
     }
 }

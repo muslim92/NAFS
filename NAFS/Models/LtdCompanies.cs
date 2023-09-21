@@ -30,6 +30,7 @@ namespace NAFS.Models
 
         //[EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string? CompanyEmail { get; set; }
+        public DateTime? SysDate { get; set; } = DateTime.Now;
 
     }
 }

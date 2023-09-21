@@ -26,5 +26,7 @@ namespace NAFS.Models
         //Optional in case apply for future
         public DateTime? StartDate { get; set; }
 
+        public DateTime? SysDate { get; set; } = DateTime.Now;
+
     }
 }
