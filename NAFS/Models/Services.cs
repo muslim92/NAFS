@@ -14,5 +14,6 @@ namespace NAFS.Models
 
         //[RegularExpression(@"^(\d{4})$", ErrorMessage = "Invalid Service Code")]
         public string? ServiceCode { get; set; }
+        public DateTime? SysDate { get; set; } = DateTime.Now;
     }
 }
