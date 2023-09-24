@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NAFS.Models;
 
@@ -11,9 +12,11 @@ using NAFS.Models;
 namespace NAFS.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230921193215_specialRequestInAssignServiceTable")]
+    partial class specialRequestInAssignServiceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,6 +34,7 @@ namespace NAFS.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<string>("Frequency")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("LtdCompaniesID")
@@ -54,10 +58,12 @@ namespace NAFS.Migrations
                     b.Property<DateTime?>("SysDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("isCompleted")
+                    b.Property<bool>("isCompleted")
                         .HasColumnType("bit");
 
                     b.HasKey("id");
+
+                    b.HasIndex("ServiceID");
 
                     b.ToTable("AssignServices");
                 });
@@ -81,15 +87,15 @@ namespace NAFS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CompanyNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DirectorName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<DateTime?>("SysDate")
                         .HasColumnType("datetime2");
@@ -99,7 +105,7 @@ namespace NAFS.Migrations
                     b.ToTable("LtdCompanies");
                 });
 
-            modelBuilder.Entity("NAFS.Models.Service", b =>
+            modelBuilder.Entity("NAFS.Models.Services", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -111,15 +117,16 @@ namespace NAFS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ServiceName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("SysDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("id");
 
-                    b.ToTable("Service");
+                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("NAFS.Models.SoleTraders", b =>
@@ -147,8 +154,8 @@ namespace NAFS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("SysDate")
                         .HasColumnType("datetime2");
@@ -197,6 +204,17 @@ namespace NAFS.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("NAFS.Models.AssignServices", b =>
+                {
+                    b.HasOne("NAFS.Models.Services", "ServiceFK")
+                        .WithMany()
+                        .HasForeignKey("ServiceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceFK");
                 });
 #pragma warning restore 612, 618
         }

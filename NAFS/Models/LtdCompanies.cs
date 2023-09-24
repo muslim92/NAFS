@@ -8,7 +8,7 @@ namespace NAFS.Models
         public int id { get; set; }
 
         [DisplayName("Company Name")]
-        [StringLength(50, MinimumLength = 2)]
+        [StringLength(100, MinimumLength = 2)]
         public string? CompanyName { get; set; }
 
         [DisplayName("Company Number")]
@@ -16,11 +16,11 @@ namespace NAFS.Models
         public string? CompanyNumber { get; set; }
 
         [DisplayName("Company Address")]
-        [StringLength(100, MinimumLength = 5)]
+        [StringLength(100, MinimumLength = 2)]
         public string? CompanyAddress { get; set; }
 
         [DisplayName("Director Name")]
-        [StringLength(25, MinimumLength = 2)]
+        [StringLength(100, MinimumLength = 2)]
         public string? DirectorName { get; set; }
 
         [Display(Name = "Company Contact")]

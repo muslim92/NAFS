@@ -11,7 +11,7 @@ namespace NAFS.Models
         }
 
         public DbSet<LtdCompanies> LtdCompanies { get; set; }
-        public DbSet<Services> Services { get; set; }
+        public DbSet<Service> Service { get; set; }
         public DbSet<AssignServices> AssignServices{ get; set; }
         public DbSet<SoleTraders> SoleTraders { get; set; }
         public DbSet<Users> Users { get; set; }
