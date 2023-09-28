@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NAFS.Models;
 
@@ -24,12 +19,13 @@ namespace NAFS.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LtdCompanies>>> GetLtdCompanies()
         {
-          if (_context.LtdCompanies == null)
-          {
-              return NotFound();
-          }
+            if (_context.LtdCompanies == null)
+            {
+                return NotFound();
+            }
             return await _context.LtdCompanies.ToListAsync();
         }
+
 
         // GET: api/LtdCompanies/5
         [HttpGet("{id}")]
