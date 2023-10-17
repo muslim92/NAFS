@@ -13,7 +13,7 @@ namespace NAFS.Controllers
         private readonly Context _context;
 
         EmailSender emailSender = new EmailSender();
-
+ 
         public AssignServicesController(Context context)
         {
             _context = context;
@@ -23,7 +23,6 @@ namespace NAFS.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AssignServicesDto>>> GetAssignServices()
         {
-            //await emailSender.SendEmail("test email", "abbas721412@gmail.com", "Muslim Abbas", "test email ha bhai. no worries");
             if (_context.AssignServices == null)
             {
                 return NotFound();
@@ -84,10 +83,54 @@ namespace NAFS.Controllers
             return objAssignServices;
         }
 
+
+
+        // GET: api/AssignServices/5
+        [HttpGet("ScheduledDate")]
+        public async Task<ActionResult<IEnumerable<AssignServicesDto>>> GetAssignServicesByDate(string dateString)
+        {
+            if (_context.AssignServices == null)
+            {
+                return NotFound();
+            }
+            
+            
+            DateTime date = DateTime.Parse(dateString);
+            var assignServices = await _context.AssignServices.Where(x => x.ScheduledDate == date).ToListAsync();
+            if (assignServices == null)
+            {
+                return NotFound();
+            }
+
+            List<AssignServicesDto> lstAssignServices = new List<AssignServicesDto>();
+
+            foreach (var item in assignServices)
+            {
+                AssignServicesDto objAssignServices = new AssignServicesDto();
+                objAssignServices.id = item.id;
+                objAssignServices.isLtdCompany = item.isLtdCompany;
+                objAssignServices.LtdCompaniesID = item.LtdCompaniesID;
+                objAssignServices.SoleTradersID = item.SoleTradersID;
+                objAssignServices.Name = item.SoleTradersID == 0 ? _context.LtdCompanies.Where(x => x.id == item.LtdCompaniesID).Select(x => x.CompanyName).FirstOrDefault() : _context.SoleTraders.Where(x => x.id == item.SoleTradersID).Select(x => x.Name).FirstOrDefault();
+                objAssignServices.ServiceID = item.ServiceID;
+                objAssignServices.ServiceName = item.ServiceID == 0 ? "" : _context.Service.Where(x => x.id == item.ServiceID).Select(x => x.ServiceName).FirstOrDefault();
+                objAssignServices.Frequency = item.Frequency;
+                objAssignServices.ScheduledDate = item.ScheduledDate;
+                objAssignServices.isCompleted = item.isCompleted;
+                objAssignServices.StartDate = item.StartDate;
+                objAssignServices.SpecialRequest = item.SpecialRequest;
+                objAssignServices.SysDate = item.SysDate;
+
+                lstAssignServices.Add(objAssignServices);
+            }
+
+            return lstAssignServices;
+        }
+
         // PUT: api/AssignServices/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAssignServices(int id, AssignServices assignServices)
+        public async Task<IActionResult> UpdateAssignServices(int id, AssignServices assignServices)
         {
             if (id != assignServices.id)
             {
@@ -99,6 +142,20 @@ namespace NAFS.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                string email, userName = "";
+                if (assignServices.isLtdCompany == true) {
+                    email = _context.LtdCompanies.Where(x => x.id == assignServices.LtdCompaniesID).Select(x => x.CompanyEmail).FirstOrDefault();
+                    userName = _context.LtdCompanies.Where(x => x.id == assignServices.LtdCompaniesID).Select(x => x.CompanyName).FirstOrDefault();
+                }
+                else
+                {
+                    email = _context.SoleTraders.Where(x => x.id == assignServices.SoleTradersID).Select(x => x.Email).FirstOrDefault();
+                    userName = _context.SoleTraders.Where(x => x.id == assignServices.SoleTradersID).Select(x => x.Name).FirstOrDefault();
+                }
+
+                await emailSender.SendEmail("NAFS ACCOUNTANTS SLOUGH", email, userName, "test email ha bhai. no worries");
+
             }
             catch (DbUpdateConcurrencyException)
             {

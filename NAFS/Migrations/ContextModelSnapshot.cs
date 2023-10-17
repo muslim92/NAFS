@@ -62,7 +62,7 @@ namespace NAFS.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("AssignServices");
+                    b.ToTable("AssignServices", (string)null);
                 });
 
             modelBuilder.Entity("NAFS.Models.LtdCompanies", b =>
@@ -99,7 +99,7 @@ namespace NAFS.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("LtdCompanies");
+                    b.ToTable("LtdCompanies", (string)null);
                 });
 
             modelBuilder.Entity("NAFS.Models.Service", b =>
@@ -122,7 +122,7 @@ namespace NAFS.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Service");
+                    b.ToTable("Service", (string)null);
                 });
 
             modelBuilder.Entity("NAFS.Models.SoleTraders", b =>
@@ -161,7 +161,7 @@ namespace NAFS.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("SoleTraders");
+                    b.ToTable("SoleTraders", (string)null);
                 });
 
             modelBuilder.Entity("NAFS.Models.Users", b =>
@@ -199,7 +199,7 @@ namespace NAFS.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 #pragma warning restore 612, 618
         }
