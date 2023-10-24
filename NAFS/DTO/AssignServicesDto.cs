@@ -7,6 +7,7 @@
         public int? LtdCompaniesID { get; set; }
         public int? SoleTradersID { get; set; }
         public string? Name { get; set; }
+        public string? Email { get; set; }
         public int ServiceID { get; set; }
         public string? ServiceName { get; set; }
         public string? Frequency { get; set; }

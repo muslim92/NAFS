@@ -13,7 +13,7 @@ namespace NAFS.Controllers
         private readonly Context _context;
 
         EmailSender emailSender = new EmailSender();
- 
+
         public AssignServicesController(Context context)
         {
             _context = context;
@@ -39,6 +39,7 @@ namespace NAFS.Controllers
                 objAssignServices.LtdCompaniesID = item.LtdCompaniesID;
                 objAssignServices.SoleTradersID = item.SoleTradersID;
                 objAssignServices.Name = item.SoleTradersID == 0 ? _context.LtdCompanies.Where(x => x.id == item.LtdCompaniesID).Select(x => x.CompanyName).FirstOrDefault() : _context.SoleTraders.Where(x => x.id == item.SoleTradersID).Select(x => x.Name).FirstOrDefault();
+                objAssignServices.Email = item.SoleTradersID == 0 ? _context.LtdCompanies.Where(x => x.id == item.LtdCompaniesID).Select(x => x.CompanyEmail).FirstOrDefault() : _context.SoleTraders.Where(x => x.id == item.SoleTradersID).Select(x => x.Email).FirstOrDefault();
                 objAssignServices.ServiceID = item.ServiceID;
                 objAssignServices.ServiceName = item.ServiceID == 0 ? "" : _context.Service.Where(x => x.id == item.ServiceID).Select(x => x.ServiceName).FirstOrDefault();
                 objAssignServices.Frequency = item.Frequency;
@@ -87,16 +88,17 @@ namespace NAFS.Controllers
 
         // GET: api/AssignServices/5
         [HttpGet("ScheduledDate")]
-        public async Task<ActionResult<IEnumerable<AssignServicesDto>>> GetAssignServicesByDate(string dateString)
+        public async Task<ActionResult<IEnumerable<AssignServicesDto>>> GetAssignServicesByDate(string fromDate, string toDate)
         {
             if (_context.AssignServices == null)
             {
                 return NotFound();
             }
-            
-            
-            DateTime date = DateTime.Parse(dateString);
-            var assignServices = await _context.AssignServices.Where(x => x.ScheduledDate == date).ToListAsync();
+
+
+            DateTime fromDatee = DateTime.Parse(fromDate);
+            DateTime toDatee = DateTime.Parse(toDate);
+            var assignServices = await _context.AssignServices.Where(x => x.ScheduledDate >= fromDatee && x.ScheduledDate <= toDatee).ToListAsync();
             if (assignServices == null)
             {
                 return NotFound();
@@ -142,20 +144,6 @@ namespace NAFS.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-
-                string email, userName = "";
-                if (assignServices.isLtdCompany == true) {
-                    email = _context.LtdCompanies.Where(x => x.id == assignServices.LtdCompaniesID).Select(x => x.CompanyEmail).FirstOrDefault();
-                    userName = _context.LtdCompanies.Where(x => x.id == assignServices.LtdCompaniesID).Select(x => x.CompanyName).FirstOrDefault();
-                }
-                else
-                {
-                    email = _context.SoleTraders.Where(x => x.id == assignServices.SoleTradersID).Select(x => x.Email).FirstOrDefault();
-                    userName = _context.SoleTraders.Where(x => x.id == assignServices.SoleTradersID).Select(x => x.Name).FirstOrDefault();
-                }
-
-                await emailSender.SendEmail("NAFS ACCOUNTANTS SLOUGH", email, userName, "test email ha bhai. no worries");
-
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -172,6 +160,22 @@ namespace NAFS.Controllers
             return NoContent();
         }
 
+
+        // Post: api/AssignServices/SendEmail
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("SendEmail")]
+        public async Task SendEmail(string subject, string toEmail, string userName, string message)
+        {
+            try
+            {
+                await emailSender.SendEmail(subject, toEmail, userName, message);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         // POST: api/AssignServices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -183,19 +187,80 @@ namespace NAFS.Controllers
             }
 
             AssignServices objAssignServices = new AssignServices();
-            objAssignServices.id = assignServices.id;
-            objAssignServices.isLtdCompany = assignServices.isLtdCompany;
-            objAssignServices.LtdCompaniesID = assignServices.LtdCompaniesID;
-            objAssignServices.SoleTradersID = assignServices.SoleTradersID;
-            objAssignServices.ServiceID = assignServices.ServiceID;
-            objAssignServices.Frequency = assignServices.Frequency;
-            objAssignServices.ScheduledDate = assignServices.ScheduledDate;
-            objAssignServices.isCompleted = assignServices.isCompleted;
-            objAssignServices.StartDate = assignServices.StartDate;
-            objAssignServices.SpecialRequest = assignServices.SpecialRequest;
-            objAssignServices.SysDate = assignServices.SysDate;
-            _context.AssignServices.Add(objAssignServices);
-            await _context.SaveChangesAsync();
+            
+            if (assignServices.Frequency == "Weekly")
+            {
+                for(int i = 0 ;i< 52; i++)
+                {
+                    objAssignServices.id = assignServices.id;
+                    objAssignServices.isLtdCompany = assignServices.isLtdCompany;
+                    objAssignServices.LtdCompaniesID = assignServices.LtdCompaniesID;
+                    objAssignServices.SoleTradersID = assignServices.SoleTradersID;
+                    objAssignServices.ServiceID = assignServices.ServiceID;
+                    objAssignServices.Frequency = assignServices.Frequency;
+                    objAssignServices.ScheduledDate = assignServices.ScheduledDate.AddDays(7*i);
+                    objAssignServices.isCompleted = assignServices.isCompleted;
+                    objAssignServices.StartDate = assignServices.StartDate;
+                    objAssignServices.SpecialRequest = assignServices.SpecialRequest;
+                    objAssignServices.SysDate = assignServices.SysDate;
+                    _context.AssignServices.Add(objAssignServices);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else if (assignServices.Frequency == "Monthly")
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    objAssignServices.id = assignServices.id;
+                    objAssignServices.isLtdCompany = assignServices.isLtdCompany;
+                    objAssignServices.LtdCompaniesID = assignServices.LtdCompaniesID;
+                    objAssignServices.SoleTradersID = assignServices.SoleTradersID;
+                    objAssignServices.ServiceID = assignServices.ServiceID;
+                    objAssignServices.Frequency = assignServices.Frequency;
+                    objAssignServices.ScheduledDate = assignServices.ScheduledDate.AddMonths(1 * i);
+                    objAssignServices.isCompleted = assignServices.isCompleted;
+                    objAssignServices.StartDate = assignServices.StartDate;
+                    objAssignServices.SpecialRequest = assignServices.SpecialRequest;
+                    objAssignServices.SysDate = assignServices.SysDate;
+                    _context.AssignServices.Add(objAssignServices);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else if (assignServices.Frequency == "Quartely")
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    objAssignServices.id = assignServices.id;
+                    objAssignServices.isLtdCompany = assignServices.isLtdCompany;
+                    objAssignServices.LtdCompaniesID = assignServices.LtdCompaniesID;
+                    objAssignServices.SoleTradersID = assignServices.SoleTradersID;
+                    objAssignServices.ServiceID = assignServices.ServiceID;
+                    objAssignServices.Frequency = assignServices.Frequency;
+                    objAssignServices.ScheduledDate = assignServices.ScheduledDate.AddMonths(3 * i);
+                    objAssignServices.isCompleted = assignServices.isCompleted;
+                    objAssignServices.StartDate = assignServices.StartDate;
+                    objAssignServices.SpecialRequest = assignServices.SpecialRequest;
+                    objAssignServices.SysDate = assignServices.SysDate;
+                    _context.AssignServices.Add(objAssignServices);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else if (assignServices.Frequency == "Yearly")
+            {
+                objAssignServices.id = assignServices.id;
+                objAssignServices.isLtdCompany = assignServices.isLtdCompany;
+                objAssignServices.LtdCompaniesID = assignServices.LtdCompaniesID;
+                objAssignServices.SoleTradersID = assignServices.SoleTradersID;
+                objAssignServices.ServiceID = assignServices.ServiceID;
+                objAssignServices.Frequency = assignServices.Frequency;
+                objAssignServices.ScheduledDate = assignServices.ScheduledDate;
+                objAssignServices.isCompleted = assignServices.isCompleted;
+                objAssignServices.StartDate = assignServices.StartDate;
+                objAssignServices.SpecialRequest = assignServices.SpecialRequest;
+                objAssignServices.SysDate = assignServices.SysDate;
+                _context.AssignServices.Add(objAssignServices);
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction("GetAssignServices", new { id = objAssignServices.id }, objAssignServices);
         }

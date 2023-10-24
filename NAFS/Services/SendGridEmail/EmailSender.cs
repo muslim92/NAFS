@@ -8,9 +8,10 @@ namespace NAFS.Services.SendGridEmail
     {
         public async Task SendEmail(string subject, string toEmail, string userName, string message)
         {
-            var apiKey = "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";  //Environment.GetEnvironmentVariable("NAME_OF_THE_ENVIRONMENT_VARIABLE_FOR_YOUR_SENDGRID_KEY");
+            //var apiKey = "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";
+            var apiKey = "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";
             var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("muslimabbas@outlook.com", "NAFS Accoutants");
+            var from = new EmailAddress("info@nafsaccountantslough.com", "NAFS Accoutants");
             var to = new EmailAddress(toEmail, userName);
             var plainTextContent = message;
             var htmlContent = "";
